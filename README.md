@@ -8,7 +8,7 @@
 
 ## 🔎  Demo
 
-![7cd448e62d927ab269a33f5916ef189c](/Users/kstone/Downloads/7cd448e62d927ab269a33f5916ef189c.gif)
+![null](https://yrdata-1315719510.cos.accelerate.myqcloud.com/images/react-native-smooth-wheel-demo.gif)
 
 ## ✨ Features
 
