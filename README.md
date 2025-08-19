@@ -86,3 +86,4 @@ const [value, setValue] = useState("React Native");
 | `enableTapSelect`    | `boolean`                        | true                                      | Tap row to select             |
 | `renderItem`         | `({item, index, isActive}) => ReactElement`         | -                                         | Custom row renderer           |
 | `centerOverlayStyle` | `ViewStyle`                      | `{ backgroundColor: "rgba(0,0,0,0.07)" }` | Highlight layer               |
+| `containerStyle`     | `ViewStyle`                      | {"width: "100%"}                          | Container Style               |
