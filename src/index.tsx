@@ -7,6 +7,7 @@ import React, {
   useImperativeHandle,
   useState,
 } from "react";
+
 import {
   View,
   Animated,
@@ -33,10 +34,9 @@ type Props = {
   onChange?: (item: Item, index: number) => void;
   itemHeight?: number; // 单行高度
   visibleCount?: number; // 可见行数
-  style?: ViewStyle;
-  css?: ViewStyle;
+  containerStyle?: ViewStyle;
   textStyle?: TextStyle;
-  activeTextColor?: string;
+  activeTextColor?: string; // 选中行文字颜色
   inactiveTextColor?: string;
   enableTapSelect?: boolean; // 点击任意行自动滚动并选中
   renderItem?: (info: {
@@ -58,14 +58,15 @@ const WheelPicker = forwardRef<WheelPickerRef, Props>((props, ref) => {
     onChange,
     itemHeight = 40,
     visibleCount = 5,
-    css,
-    style,
+    containerStyle,
     textStyle,
-    activeTextColor = "white",
-    inactiveTextColor = "white",
+    activeTextColor = "black",
+    inactiveTextColor = "#B5B5B5",
     enableTapSelect = true,
     renderItem,
-    centerOverlayStyle,
+    centerOverlayStyle = {
+      backgroundColor: "rgba(0,0,0,0.07)",
+    },
   } = props;
 
   const listRef = useRef<FlatList>(null);
@@ -155,72 +156,95 @@ const WheelPicker = forwardRef<WheelPickerRef, Props>((props, ref) => {
   // 每行渲染：根据距中心的“行距”做插值
   const renderRow = useCallback(
     ({ item, index }: ListRenderItemInfo<Item>) => {
-      // 这一行距离中心差多少行
+      // 相对中心的“行距”：行高为单位
       const rel = Animated.divide(
         Animated.subtract(index * itemHeight, scrollY),
         itemHeight,
       );
 
+      // 缩放 / 透明度 / 位移（与你现有保持一致或按需调）
       const scale = rel.interpolate({
         inputRange: [-3, -2, -1, 0, 1, 2, 3],
-        outputRange: [0.85, 0.9, 0.95, 1.0, 0.95, 0.9, 0.85],
+        outputRange: [0.6, 0.75, 0.9, 1.0, 0.9, 0.75, 0.6],
         extrapolate: "clamp",
       });
-
-      const opacity = rel.interpolate({
+      const rowOpacity = rel.interpolate({
         inputRange: [-3, -2, -1, 0, 1, 2, 3],
-        outputRange: [0.15, 0.3, 0.6, 1.0, 0.6, 0.3, 0.15],
+        outputRange: [0.3, 0.5, 0.7, 1.0, 0.7, 0.5, 0.3],
+        extrapolate: "clamp",
+      });
+      const translateY = rel.interpolate({
+        inputRange: [-3, -2, -1, 0, 1, 2, 3],
+        outputRange: [20, 12, 6, 0, -6, -12, -20],
         extrapolate: "clamp",
       });
 
-      // 中心±0.5 行视作激活
-      const isActiveApproximated =
-        Math.abs((currentIndexRef.current ?? 0) - index) < 0.5;
+      // 关键：基于 rel 的“活跃强度”，0~1
+      // 在 |rel| <= 0.6 附近接近 1，越远越小，实现连续过渡
+      const activeOpacity = rel.interpolate({
+        inputRange: [-1.2, -0.6, 0, 0.6, 1.2],
+        outputRange: [0, 0.6, 1, 0.6, 0],
+        extrapolate: "clamp",
+      });
+      const inactiveOpacity = Animated.subtract(1, activeOpacity);
 
-      const finalOpacity = isActiveApproximated ? 1 : opacity;
-
-      const line = (
-        <Animated.Text
-          numberOfLines={1}
-          style={[
-            styles.itemText,
-            {
-              lineHeight: itemHeight,
-              color: isActiveApproximated ? activeTextColor : inactiveTextColor,
-            },
-            textStyle,
-            { transform: [{ scale }], opacity: finalOpacity },
-          ]}
-          accessibilityRole="button"
-          accessible
-          accessibilityState={{ selected: isActiveApproximated }}
+      const content = (
+        <View
+          style={{
+            height: itemHeight,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
         >
-          {item.text}
-        </Animated.Text>
+          <Animated.Text
+            numberOfLines={1}
+            style={[
+              styles.itemText,
+              textStyle,
+              { lineHeight: itemHeight, color: activeTextColor },
+              {
+                position: "absolute",
+                opacity: Animated.multiply(rowOpacity, activeOpacity),
+                transform: [{ scale }, { translateY }],
+              },
+            ]}
+          >
+            {item.text}
+          </Animated.Text>
+
+          <Animated.Text
+            numberOfLines={1}
+            style={[
+              styles.itemText,
+              textStyle,
+              { lineHeight: itemHeight, color: inactiveTextColor },
+              {
+                opacity: Animated.multiply(rowOpacity, inactiveOpacity),
+                transform: [{ scale }, { translateY }],
+              },
+            ]}
+          >
+            {item.text}
+          </Animated.Text>
+        </View>
       );
 
-      if (!enableTapSelect) {
-        return (
-          <View style={{ height: itemHeight, alignItems: "center" }}>
-            {line}
-          </View>
-        );
-      }
+      if (!enableTapSelect) return content;
+
       return (
         <Pressable
           onPress={() => handlePressItem(index)}
           style={{ height: itemHeight, alignItems: "center" }}
         >
-          {line}
+          {content}
         </Pressable>
       );
     },
     [
+      itemHeight,
+      scrollY,
       activeTextColor,
       inactiveTextColor,
-      itemHeight,
-      sidePad,
-      scrollY,
       textStyle,
       enableTapSelect,
       handlePressItem,
@@ -249,7 +273,7 @@ const WheelPicker = forwardRef<WheelPickerRef, Props>((props, ref) => {
 
   return (
     <View
-      style={[{ height: containerH }, css, style]}
+      style={[{ height: containerH }, containerStyle]}
       onLayout={onContainerLayout}
     >
       <View
@@ -259,7 +283,7 @@ const WheelPicker = forwardRef<WheelPickerRef, Props>((props, ref) => {
           {
             top: sidePad,
             height: itemHeight,
-            borderRadius: 12,
+            borderRadius: 8,
             zIndex: 0,
           },
           centerOverlayStyle,
@@ -285,6 +309,7 @@ const WheelPicker = forwardRef<WheelPickerRef, Props>((props, ref) => {
         contentContainerStyle={{
           paddingTop: sidePad,
           paddingBottom: sidePad,
+          backgroundColor: "transparent",
         }}
         getItemLayout={getItemLayout}
         onScroll={onScroll}

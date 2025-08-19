@@ -1,11 +1,19 @@
 {
   "name": "@kstonelc/react-native-smooth-wheel",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An all TypeScript Wheel Picker for react-native without any native code",
   "license": "MIT",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kstonelc/react-native-smooth-wheel.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kstonelc/react-native-smooth-wheel/issues"
+  },
+  "homepage": "https://github.com/kstonelc/react-native-smooth-wheel#readme",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
