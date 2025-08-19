@@ -8,7 +8,7 @@
 
 ## 🔎  Demo
 
-<video src="https://yrdata-1315719510.cos.ap-shanghai.myqcloud.com/images/react-native-smooth-wheel-demo.mp4" style="width: 300px;height: 600px"></video>
+![7cd448e62d927ab269a33f5916ef189c](/Users/kstone/Downloads/7cd448e62d927ab269a33f5916ef189c.gif)
 
 ## ✨ Features
 
@@ -87,4 +87,3 @@ const [value, setValue] = useState(null);
 | `enableTapSelect`    | `boolean`                        | true                                      | Tap row to select             |
 | `renderItem`         | `(info) => ReactElement`         | -                                         | Custom row renderer           |
 | `centerOverlayStyle` | `ViewStyle`                      | `{ backgroundColor: "rgba(0,0,0,0.07)" }` | Highlight layer               |
-
