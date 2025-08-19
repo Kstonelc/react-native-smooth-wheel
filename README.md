@@ -33,6 +33,7 @@ yarn add @kstonelc/react-native-smooth-wheel
 ## 🚀 Usage
 
 ```jsx
+import WheelPicker from '@kstonelc/react-native-smooth-wheel';
 const data = [
     {
       text: 'React Native',
@@ -55,12 +56,11 @@ const data = [
       value: 'Ionic',
     },
   ];
-const [value, setValue] = useState(null);
+const [value, setValue] = useState("React Native");
 <WheelPicker
   key={1}
   data={data}
   value={value}
-  defaultValue={'React native'}
   centerOverlayStyle={{
     backgroundColor: '#D4E639',
   }}
@@ -78,12 +78,11 @@ const [value, setValue] = useState(null);
 | -------------------- | -------------------------------- | ----------------------------------------- | ----------------------------- |
 | `data`               | `{ text: string; value: any }[]` | -                                         | List items                    |
 | `value`              | `any`                            | -                                         | Controlled value              |
-| `defaultIndex`       | `number`                         | 0                                         | Initial index if uncontrolled |
 | `onChange`           | `(item, index) => void`          | -                                         | Called when selection changes |
 | `itemHeight`         | `number`                         | 40                                        | Row height                    |
 | `visibleCount`       | `number`                         | 5                                         | Visible rows                  |
 | `activeTextColor`    | `string`                         | "black"                                   | Active text color             |
 | `inactiveTextColor`  | `string`                         | "#B5B5B5"                                 | Inactive text color           |
 | `enableTapSelect`    | `boolean`                        | true                                      | Tap row to select             |
-| `renderItem`         | `(info) => ReactElement`         | -                                         | Custom row renderer           |
+| `renderItem`         | `({item, index, isActive}) => ReactElement`         | -                                         | Custom row renderer           |
 | `centerOverlayStyle` | `ViewStyle`                      | `{ backgroundColor: "rgba(0,0,0,0.07)" }` | Highlight layer               |
